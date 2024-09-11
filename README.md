@@ -105,3 +105,58 @@ La Dirección General de la "Universidad Innovación y Conocimiento" desea mante
 - **Número de Inscripciones y Gestión de Clases:** Revisar las tendencias en inscripciones para ajustar la oferta académica y mejorar la planificación de horarios.
 - **Satisfacción de los Estudiantes:** Medir la satisfacción de los estudiantes con la calidad de la enseñanza y los servicios ofrecidos por la universidad.
 - **Y otras consultas relacionadas con la gestión universitaria:** Generar otros reportes específicos según las necesidades y objetivos de la universidad.
+
+# Guía para Subir Cambios Usando Git Flow
+
+Git Flow es una estrategia de ramificación para Git que ayuda a gestionar el flujo de trabajo en el desarrollo. A continuación, se detalla cómo subir cambios siguiendo las reglas de Git Flow:
+
+## 1. Preparar el Entorno
+
+Asegúrate de estar en la rama correcta antes de hacer cambios. Las ramas principales en Git Flow son:
+
+- `master` (o `main`): Contiene el código de producción.
+- `develop`: Contiene la última versión de desarrollo.
+
+## 2. Crear una Rama de Característica (Feature)
+
+Cuando trabajas en una nueva característica:
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/nombre-caracteristica
+```
+
+## 3. Hacer Cambios y Commits
+
+Realiza los cambios necesarios en la rama de la característica y haz commits regularmente:
+
+```bash
+git add .
+git commit -m "Mensaje descriptivo de los cambios"
+```
+
+## 4. Actualizar la Rama de la Característica(si es necesario)
+
+Si la rama `develop` ha avanzado mientras trabajabas en la característica, actualiza tu rama de la siguiente manera:
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout feature/nombre-caracteristica
+git merge develop
+```
+
+
+## 5. Subir la Rama de la Característica
+
+Una vez que hayas terminado de trabajar en la característica, súbelo al repositorio remoto:
+
+```bash
+git push -u origin feature/nombre-caracteristica
+```
+
+
+## 6. Crear un Pull Request
+
+Crea un Pull Request en GitHub para fusionar la rama de la característica con la rama `develop`. Solicita a un compañero de equipo que revise tus cambios y apruebe el Pull Request.

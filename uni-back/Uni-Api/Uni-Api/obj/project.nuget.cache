@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ybipyF+pg0U=",
+  "dgSpecHash": "xpvkwBjyF4A=",
   "success": true,
-  "projectFilePath": "C:\\Users\\suare\\Code\\Universidad-Innovación-y-Conocimiento\\uni-back\\Uni-Api\\Uni-Api\\Uni-Api.csproj",
+  "projectFilePath": "C:\\Users\\suare\\Code\\Data-base\\Universidad-Innovacion-y-Conocimiento\\uni-back\\Uni-Api\\Uni-Api\\Uni-Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\suare\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
     "C:\\Users\\suare\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",

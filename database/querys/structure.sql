@@ -149,3 +149,20 @@ CREATE TABLE Historial_Academico (
     FOREIGN KEY (Id_Estudiante) REFERENCES Estudiante(Id_Estudiante)
 );
 GO
+
+
+CREATE TABLE Historial_Cambio(
+    Id_Historial_Cambio INT NOT NULL PRIMARY KEY,
+    Usuario VARCHAR(20),
+    Fecha DATE,
+    Accion VARCHAR(255),
+    FOREIGN KEY (Id_Accion) REFERENCES Auditoria_Accion(Id_Accion)
+);
+GO
+
+CREATE TABLE Auditoria_Accion(
+    Id_Accion INT NOT NULL PRIMARY KEY,
+    Accion_Realizada VARCHAR(20),
+    Fecha DATE,
+);
+GO

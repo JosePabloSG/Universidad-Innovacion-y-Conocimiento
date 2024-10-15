@@ -150,19 +150,21 @@ CREATE TABLE Historial_Academico (
 );
 GO
 
-
-CREATE TABLE Historial_Cambio(
-    Id_Historial_Cambio INT NOT NULL PRIMARY KEY,
-    Usuario VARCHAR(20),
-    Fecha DATE,
-    Accion VARCHAR(255),
-    FOREIGN KEY (Id_Accion) REFERENCES Auditoria_Accion(Id_Accion)
+CREATE TABLE Auditoria_Accion (
+    Id_Accion INT IDENTITY(1,1) PRIMARY KEY,
+    Accion_Realizada VARCHAR(50) NOT NULL
 );
 GO
 
-CREATE TABLE Auditoria_Accion(
-    Id_Accion INT NOT NULL PRIMARY KEY,
-    Accion_Realizada VARCHAR(20),
-    Fecha DATE,
+CREATE TABLE Historial_Cambio (
+    Id_Historial_Cambio INT IDENTITY(1,1) PRIMARY KEY,
+    Usuario VARCHAR(100) NOT NULL,
+    Fecha DATETIME NOT NULL DEFAULT GETDATE(),
+    Id_Registro INT NOT NULL,
+    Tabla VARCHAR(50) NOT NULL,
+    Accion VARCHAR(50) NOT NULL,
+    Datos_Anteriores NVARCHAR(MAX),
+    Datos_Nuevos NVARCHAR(MAX),
+    CONSTRAINT FK_Historial_Cambio_Accion FOREIGN KEY (Accion) REFERENCES Auditoria_Accion(Accion_Realizada)
 );
 GO

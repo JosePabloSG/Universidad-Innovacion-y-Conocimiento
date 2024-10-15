@@ -433,11 +433,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\suare\\Code\\Data-base\\Universidad-Innovacion-y-Conocimiento\\uni-back\\Uni-Api\\Uni-Api\\Uni-Api.csproj",
+      "projectUniqueName": "C:\\Users\\suare\\Code\\Universidad-Innovacion-y-Conocimiento\\uni-back\\Uni-Api\\Uni-Api\\Uni-Api.csproj",
       "projectName": "Uni-Api",
-      "projectPath": "C:\\Users\\suare\\Code\\Data-base\\Universidad-Innovacion-y-Conocimiento\\uni-back\\Uni-Api\\Uni-Api\\Uni-Api.csproj",
+      "projectPath": "C:\\Users\\suare\\Code\\Universidad-Innovacion-y-Conocimiento\\uni-back\\Uni-Api\\Uni-Api\\Uni-Api.csproj",
       "packagesPath": "C:\\Users\\suare\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\suare\\Code\\Data-base\\Universidad-Innovacion-y-Conocimiento\\uni-back\\Uni-Api\\Uni-Api\\obj\\",
+      "outputPath": "C:\\Users\\suare\\Code\\Universidad-Innovacion-y-Conocimiento\\uni-back\\Uni-Api\\Uni-Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\suare\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -496,7 +496,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

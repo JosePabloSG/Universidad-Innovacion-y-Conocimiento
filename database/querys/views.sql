@@ -95,3 +95,49 @@ SELECT * FROM vwCurso
 SELECT * FROM vwHorario
 SELECT * FROM vwAuditoriaAccion
 SELECT * FROM vwHistorialCambio
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+-- Vista para la tabla Facultad 
+CREATE VIEW dbo.vwFacultad AS
+SELECT
+    f.Id_Facultad,
+    f.Nombre AS NombreFacultad
+FROM
+    Facultad f;
+GO
+
+USE Universidad_InnovacionConocimiento;
+GO
+-- Vista para la tabla Nivel Académico 
+CREATE VIEW dbo.vwNivelAcademico AS
+SELECT
+    na.Id_Nivel_Academico,
+    na.Nombre AS NombreNivelAcademico
+FROM
+    Nivel_Academico na;
+GO
+
+USE Universidad_InnovacionConocimiento;
+GO
+-- Vista para la tabla Programa Académico 
+CREATE VIEW dbo.vwProgramaAcademico AS
+SELECT
+    pa.Id_Prog_Academico,
+    pa.Nombre AS NombrePrograma,
+    pa.Duracion,
+    na.Id_Nivel_Academico,
+    na.Nombre AS NivelAcademico,
+    f.Id_Facultad,
+    f.Nombre AS NombreFacultad
+FROM
+    Programa_Academico pa
+    INNER JOIN Nivel_Academico na ON pa.Id_Nivel_Academico = na.Id_Nivel_Academico
+    INNER JOIN Facultad f ON pa.Id_Facultad = f.Id_Facultad;
+GO
+
+-- Consultas para probar las vistas
+SELECT * FROM vwFacultad;
+SELECT * FROM vwNivelAcademico;
+SELECT * FROM vwProgramaAcademico;

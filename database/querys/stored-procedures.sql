@@ -717,3 +717,505 @@ BEGIN
     END CATCH
 END
 GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para insertar Facultad
+CREATE PROCEDURE uspInsertFacultad
+    @IdFacultad INT,
+    @Nombre VARCHAR(150)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validaciones de parámetros
+    IF @IdFacultad IS NULL
+    BEGIN
+        RAISERROR('El campo IdFacultad no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = ''
+    BEGIN
+        RAISERROR('El campo Nombre no puede ser nulo o vacío.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si la facultad ya existe
+        IF EXISTS (SELECT 1 FROM Facultad WHERE Id_Facultad = @IdFacultad)
+        BEGIN
+            RAISERROR('La facultad con Id %d ya existe.', 16, 1, @IdFacultad);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Insertar la nueva facultad
+        INSERT INTO Facultad (Id_Facultad, Nombre)
+        VALUES (@IdFacultad, @Nombre);
+
+        COMMIT TRANSACTION;
+        PRINT 'La facultad ha sido insertada exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para actualizar Facultad
+CREATE PROCEDURE uspUpdateFacultad
+    @IdFacultad INT,
+    @Nombre VARCHAR(150)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validaciones de parámetros
+    IF @IdFacultad IS NULL
+    BEGIN
+        RAISERROR('El campo IdFacultad no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = ''
+    BEGIN
+        RAISERROR('El campo Nombre no puede ser nulo o vacío.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si la facultad existe
+        IF NOT EXISTS (SELECT 1 FROM Facultad WHERE Id_Facultad = @IdFacultad)
+        BEGIN
+            RAISERROR('La facultad con Id %d no existe.', 16, 1, @IdFacultad);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Actualizar la facultad
+        UPDATE Facultad
+        SET Nombre = @Nombre
+        WHERE Id_Facultad = @IdFacultad;
+
+        COMMIT TRANSACTION;
+        PRINT 'La facultad ha sido actualizada exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para eliminar Facultad
+CREATE PROCEDURE uspDeleteFacultad
+    @IdFacultad INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validación del parámetro
+    IF @IdFacultad IS NULL
+    BEGIN
+        RAISERROR('El campo IdFacultad no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si la facultad existe
+        IF NOT EXISTS (SELECT 1 FROM Facultad WHERE Id_Facultad = @IdFacultad)
+        BEGIN
+            RAISERROR('La facultad con Id %d no existe.', 16, 1, @IdFacultad);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Eliminar la facultad
+        DELETE FROM Facultad
+        WHERE Id_Facultad = @IdFacultad;
+
+        COMMIT TRANSACTION;
+        PRINT 'La facultad ha sido eliminada exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para insertar nivel académico
+CREATE PROCEDURE uspInsertNivelAcademico
+    @IdNivelAcademico INT,
+    @Nombre VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validaciones de parámetros
+    IF @IdNivelAcademico IS NULL
+    BEGIN
+        RAISERROR('El campo IdNivelAcademico no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = ''
+    BEGIN
+        RAISERROR('El campo Nombre no puede ser nulo o vacío.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si el nivel académico ya existe
+        IF EXISTS (SELECT 1 FROM Nivel_Academico WHERE Id_Nivel_Academico = @IdNivelAcademico)
+        BEGIN
+            RAISERROR('El nivel académico con Id %d ya existe.', 16, 1, @IdNivelAcademico);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Insertar el nuevo nivel académico
+        INSERT INTO Nivel_Academico (Id_Nivel_Academico, Nombre)
+        VALUES (@IdNivelAcademico, @Nombre);
+
+        COMMIT TRANSACTION;
+        PRINT 'El nivel académico ha sido insertado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para actualizar nivel académico
+CREATE PROCEDURE uspUpdateNivelAcademico
+    @IdNivelAcademico INT,
+    @Nombre VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validaciones de parámetros
+    IF @IdNivelAcademico IS NULL
+    BEGIN
+        RAISERROR('El campo IdNivelAcademico no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = ''
+    BEGIN
+        RAISERROR('El campo Nombre no puede ser nulo o vacío.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si el nivel académico existe
+        IF NOT EXISTS (SELECT 1 FROM Nivel_Academico WHERE Id_Nivel_Academico = @IdNivelAcademico)
+        BEGIN
+            RAISERROR('El nivel académico con Id %d no existe.', 16, 1, @IdNivelAcademico);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Actualizar el nivel académico
+        UPDATE Nivel_Academico
+        SET Nombre = @Nombre
+        WHERE Id_Nivel_Academico = @IdNivelAcademico;
+
+        COMMIT TRANSACTION;
+        PRINT 'El nivel académico ha sido actualizado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para eliminar nivel académico
+CREATE PROCEDURE uspDeleteNivelAcademico
+    @IdNivelAcademico INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validación del parámetro
+    IF @IdNivelAcademico IS NULL
+    BEGIN
+        RAISERROR('El campo IdNivelAcademico no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si el nivel académico existe
+        IF NOT EXISTS (SELECT 1 FROM Nivel_Academico WHERE Id_Nivel_Academico = @IdNivelAcademico)
+        BEGIN
+            RAISERROR('El nivel académico con Id %d no existe.', 16, 1, @IdNivelAcademico);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Eliminar el nivel académico
+        DELETE FROM Nivel_Academico
+        WHERE Id_Nivel_Academico = @IdNivelAcademico;
+
+        COMMIT TRANSACTION;
+        PRINT 'El nivel académico ha sido eliminado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para insertar programa académico
+CREATE PROCEDURE uspInsertProgramaAcademico
+    @IdProgAcademico INT,
+    @Nombre VARCHAR(150),
+    @Duracion INT,
+    @IdNivelAcademico INT,
+    @IdFacultad INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validaciones de parámetros
+    IF @IdProgAcademico IS NULL
+    BEGIN
+        RAISERROR('El campo IdProgAcademico no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = ''
+    BEGIN
+        RAISERROR('El campo Nombre no puede ser nulo o vacío.', 16, 1);
+        RETURN;
+    END
+
+    IF @Duracion IS NULL
+    BEGIN
+        RAISERROR('El campo Duracion no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @IdNivelAcademico IS NULL
+    BEGIN
+        RAISERROR('El campo IdNivelAcademico no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @IdFacultad IS NULL
+    BEGIN
+        RAISERROR('El campo IdFacultad no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si el programa académico ya existe
+        IF EXISTS (SELECT 1 FROM Programa_Academico WHERE Id_Prog_Academico = @IdProgAcademico)
+        BEGIN
+            RAISERROR('El programa académico con Id %d ya existe.', 16, 1, @IdProgAcademico);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Verificar si el nivel académico existe
+        IF NOT EXISTS (SELECT 1 FROM Nivel_Academico WHERE Id_Nivel_Academico = @IdNivelAcademico)
+        BEGIN
+            RAISERROR('El nivel académico con Id %d no existe.', 16, 1, @IdNivelAcademico);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Verificar si la facultad existe
+        IF NOT EXISTS (SELECT 1 FROM Facultad WHERE Id_Facultad = @IdFacultad)
+        BEGIN
+            RAISERROR('La facultad con Id %d no existe.', 16, 1, @IdFacultad);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Insertar el nuevo programa académico
+        INSERT INTO Programa_Academico (Id_Prog_Academico, Nombre, Duracion, Id_Nivel_Academico, Id_Facultad)
+        VALUES (@IdProgAcademico, @Nombre, @Duracion, @IdNivelAcademico, @IdFacultad);
+
+        COMMIT TRANSACTION;
+        PRINT 'El programa académico ha sido insertado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para actualizar programa académico
+CREATE PROCEDURE uspUpdateProgramaAcademico
+    @IdProgAcademico INT,
+    @Nombre VARCHAR(150),
+    @Duracion INT,
+    @IdNivelAcademico INT,
+    @IdFacultad INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validaciones de parámetros
+    IF @IdProgAcademico IS NULL
+    BEGIN
+        RAISERROR('El campo IdProgAcademico no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = ''
+    BEGIN
+        RAISERROR('El campo Nombre no puede ser nulo o vacío.', 16, 1);
+        RETURN;
+    END
+
+    IF @Duracion IS NULL
+    BEGIN
+        RAISERROR('El campo Duracion no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @IdNivelAcademico IS NULL
+    BEGIN
+        RAISERROR('El campo IdNivelAcademico no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    IF @IdFacultad IS NULL
+    BEGIN
+        RAISERROR('El campo IdFacultad no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si el programa académico existe
+        IF NOT EXISTS (SELECT 1 FROM Programa_Academico WHERE Id_Prog_Academico = @IdProgAcademico)
+        BEGIN
+            RAISERROR('El programa académico con Id %d no existe.', 16, 1, @IdProgAcademico);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Actualizar el programa académico
+        UPDATE Programa_Academico
+        SET
+            Nombre = @Nombre,
+            Duracion = @Duracion,
+            Id_Nivel_Academico = @IdNivelAcademico,
+            Id_Facultad = @IdFacultad
+        WHERE Id_Prog_Academico = @IdProgAcademico;
+
+        COMMIT TRANSACTION;
+        PRINT 'El programa académico ha sido actualizado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Procedimiento almacenado para eliminar programa académico
+CREATE PROCEDURE uspDeleteProgramaAcademico
+    @IdProgAcademico INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validación del parámetro
+    IF @IdProgAcademico IS NULL
+    BEGIN
+        RAISERROR('El campo IdProgAcademico no puede ser nulo.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Verificar si el programa académico existe
+        IF NOT EXISTS (SELECT 1 FROM Programa_Academico WHERE Id_Prog_Academico = @IdProgAcademico)
+        BEGIN
+            RAISERROR('El programa académico con Id %d no existe.', 16, 1, @IdProgAcademico);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Eliminar el programa académico
+        DELETE FROM Programa_Academico
+        WHERE Id_Prog_Academico = @IdProgAcademico;
+
+        COMMIT TRANSACTION;
+        PRINT 'El programa académico ha sido eliminado exitosamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END
+GO

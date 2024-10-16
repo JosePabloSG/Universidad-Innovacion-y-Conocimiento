@@ -371,3 +371,327 @@ BEGIN
     END CATCH
 END;
 GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+--Triggers para Facultad
+CREATE TRIGGER TR_Facultad_Insert
+ON Facultad
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'INSERT'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'INSERT';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Nuevos)
+        SELECT
+            @Usuario,
+            i.Id_Facultad,
+            'Facultad',
+            @IdAccion,
+            (
+                SELECT i2.Id_Facultad, i2.Nombre FROM inserted i2 WHERE i2.Id_Facultad = i.Id_Facultad FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM inserted i;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+CREATE TRIGGER TR_Facultad_Update
+ON Facultad
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'UPDATE'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'UPDATE';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores, Datos_Nuevos)
+        SELECT
+            @Usuario,
+            i.Id_Facultad,
+            'Facultad',
+            @IdAccion,
+            (
+                SELECT d2.Id_Facultad, d2.Nombre FROM deleted d2 WHERE d2.Id_Facultad = d.Id_Facultad FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            ),
+            (
+                SELECT i2.Id_Facultad, i2.Nombre FROM inserted i2 WHERE i2.Id_Facultad = i.Id_Facultad FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM inserted i
+        INNER JOIN deleted d ON i.Id_Facultad = d.Id_Facultad;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+CREATE TRIGGER TR_Facultad_Delete
+ON Facultad
+AFTER DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'DELETE'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'DELETE';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores)
+        SELECT
+            @Usuario,
+            d.Id_Facultad,
+            'Facultad',
+            @IdAccion,
+            (
+                SELECT d2.Id_Facultad, d2.Nombre FROM deleted d2 WHERE d2.Id_Facultad = d.Id_Facultad FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM deleted d;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+-- Triggers para Nivel Académico
+CREATE TRIGGER TR_NivelAcademico_Insert
+ON Nivel_Academico
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'INSERT'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'INSERT';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Nuevos)
+        SELECT
+            @Usuario,
+            i.Id_Nivel_Academico,
+            'Nivel_Academico',
+            @IdAccion,
+            (
+                SELECT i2.Id_Nivel_Academico, i2.Nombre FROM inserted i2 WHERE i2.Id_Nivel_Academico = i.Id_Nivel_Academico FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM inserted i;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+USE Universidad_InnovacionConocimiento;
+GO
+CREATE TRIGGER TR_NivelAcademico_Update
+ON Nivel_Academico
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'UPDATE'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'UPDATE';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores, Datos_Nuevos)
+        SELECT
+            @Usuario,
+            i.Id_Nivel_Academico,
+            'Nivel_Academico',
+            @IdAccion,
+            (
+                SELECT d2.Id_Nivel_Academico, d2.Nombre FROM deleted d2 WHERE d2.Id_Nivel_Academico = d.Id_Nivel_Academico FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            ),
+            (
+                SELECT i2.Id_Nivel_Academico, i2.Nombre FROM inserted i2 WHERE i2.Id_Nivel_Academico = i.Id_Nivel_Academico FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM inserted i
+        INNER JOIN deleted d ON i.Id_Nivel_Academico = d.Id_Nivel_Academico;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+USE Universidad_InnovacionConocimiento;
+GO
+CREATE TRIGGER TR_NivelAcademico_Delete
+ON Nivel_Academico
+AFTER DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'DELETE'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'DELETE';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores)
+        SELECT
+            @Usuario,
+            d.Id_Nivel_Academico,
+            'Nivel_Academico',
+            @IdAccion,
+            (
+                SELECT d2.Id_Nivel_Academico, d2.Nombre FROM deleted d2 WHERE d2.Id_Nivel_Academico = d.Id_Nivel_Academico FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM deleted d;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+-- Triggers para Programa Académico
+CREATE TRIGGER TR_ProgramaAcademico_Insert
+ON Programa_Academico
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'INSERT'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'INSERT';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Nuevos)
+        SELECT
+            @Usuario,
+            i.Id_Prog_Academico,
+            'Programa_Academico',
+            @IdAccion,
+            (
+                SELECT i2.Id_Prog_Academico, i2.Nombre, i2.Duracion, i2.Id_Nivel_Academico, i2.Id_Facultad
+                FROM inserted i2 WHERE i2.Id_Prog_Academico = i.Id_Prog_Academico FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM inserted i;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+CREATE TRIGGER TR_ProgramaAcademico_Update
+ON Programa_Academico
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'UPDATE'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'UPDATE';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores, Datos_Nuevos)
+        SELECT
+            @Usuario,
+            i.Id_Prog_Academico,
+            'Programa_Academico',
+            @IdAccion,
+            (
+                SELECT d2.Id_Prog_Academico, d2.Nombre, d2.Duracion, d2.Id_Nivel_Academico, d2.Id_Facultad
+                FROM deleted d2 WHERE d2.Id_Prog_Academico = d.Id_Prog_Academico FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            ),
+            (
+                SELECT i2.Id_Prog_Academico, i2.Nombre, i2.Duracion, i2.Id_Nivel_Academico, i2.Id_Facultad
+                FROM inserted i2 WHERE i2.Id_Prog_Academico = i.Id_Prog_Academico FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM inserted i
+        INNER JOIN deleted d ON i.Id_Prog_Academico = d.Id_Prog_Academico;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+CREATE TRIGGER TR_ProgramaAcademico_Delete
+ON Programa_Academico
+AFTER DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'DELETE'
+    SELECT @IdAccion = Id_Accion FROM Auditoria_Accion WHERE Accion_Realizada = 'DELETE';
+
+    BEGIN TRY
+        INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores)
+        SELECT
+            @Usuario,
+            d.Id_Prog_Academico,
+            'Programa_Academico',
+            @IdAccion,
+            (
+                SELECT d2.Id_Prog_Academico, d2.Nombre, d2.Duracion, d2.Id_Nivel_Academico, d2.Id_Facultad
+                FROM deleted d2 WHERE d2.Id_Prog_Academico = d.Id_Prog_Academico FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+            )
+        FROM deleted d;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+

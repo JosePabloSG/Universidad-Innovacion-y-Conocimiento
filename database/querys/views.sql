@@ -141,3 +141,140 @@ GO
 SELECT * FROM vwFacultad;
 SELECT * FROM vwNivelAcademico;
 SELECT * FROM vwProgramaAcademico;
+
+
+---------------------------------------------------------YOILIN--------------------------------------------------------------------
+
+
+--Vistas del area de Recursos Académicos y Aulas
+
+
+-------VISTA PARA RECURSOS ACADEMICOS     -----------
+-----  ___________________________________ ---------
+
+
+USE Universidad_InnovacionConocimiento;
+GO
+
+-- Vista para obtener la asignación de recursos académicos a los cursos
+CREATE VIEW dbo.vwCursoRecursoAcademico AS
+SELECT
+    cra.Id_Curso_Rec_Academico,
+    c.Id_Curso,
+    c.Nombre AS NombreCurso,
+    ra.Id_Recurso_Academico,
+    ra.Tipo AS TipoRecurso,
+    ra.Estado AS EstadoRecurso
+FROM
+    Curso_Recurso_Academico cra
+    INNER JOIN Curso c ON cra.Id_Curso = c.Id_Curso
+    INNER JOIN Recurso_Academico ra ON cra.Id_Recurso_Academico = ra.Id_Recurso_Academico;
+GO
+
+SELECT * FROM dbo.vwCursoRecursoAcademico;
+
+-------     VISTA PARA AULAS     -----------
+-----  _________________________ ---------
+
+USE Universidad_InnovacionConocimiento;
+GO
+
+-- Vista para obtener las aulas disponibles (sin asignación a cursos en la tabla Curso_Aula)
+CREATE VIEW dbo.vwAulasDisponibles AS
+SELECT
+    a.Id_Aula,
+    a.Codigo_aula,
+    a.Ubicacion,
+    a.Capacidad,
+    a.Equipamiento
+FROM
+    Aula a
+WHERE
+    NOT EXISTS (
+        SELECT 1
+        FROM Curso_Aula ca
+        INNER JOIN Horario h ON ca.Id_Curso = h.Id_Curso
+        WHERE ca.Id_Aula = a.Id_Aula
+        AND GETDATE() BETWEEN h.FechaInicio AND h.FechaFin
+    );
+GO
+
+Select * from dbo.vwAulasDisponibles;
+
+-------------------------------------------------------
+
+USE Universidad_InnovacionConocimiento;
+GO
+
+-- Vista para obtener la asignación de aulas a los cursos
+CREATE VIEW dbo.vwCursoAula AS
+SELECT
+    ca.Id_Curso_Aula,
+    c.Id_Curso,
+    c.Nombre AS NombreCurso,
+    a.Id_Aula,
+    a.Codigo_aula,
+    a.Ubicacion,
+    a.Capacidad,
+    ca.Horario_clase
+FROM
+    Curso_Aula ca
+    INNER JOIN Aula a ON ca.Id_Aula = a.Id_Aula
+    INNER JOIN Curso c ON ca.Id_Curso = c.Id_Curso;
+GO
+
+SELECT * FROM dbo.vwCursoAula;
+
+
+-------------------------------------------------------
+
+USE Universidad_InnovacionConocimiento;
+GO
+
+-- Vista para obtener la asignación de aulas a los cursos
+CREATE VIEW dbo.vwasigCursoAula AS
+SELECT
+    ca.Id_Curso_Aula,
+    c.Id_Curso,
+    c.Nombre AS NombreCurso,
+    a.Id_Aula,
+    a.Codigo_aula,
+    a.Ubicacion,
+    a.Capacidad,
+    ca.Horario_clase
+FROM
+    Curso_Aula ca
+    INNER JOIN Aula a ON ca.Id_Aula = a.Id_Aula
+    INNER JOIN Curso c ON ca.Id_Curso = c.Id_Curso;
+GO
+
+SELECT * FROM dbo.vwasigCursoAula;
+
+-------------------------------------------------------
+
+USE Universidad_InnovacionConocimiento;
+GO
+
+-- Vista resumen que combina aulas y recursos asignados a los cursos
+CREATE VIEW dbo.vwResumenCurso AS
+SELECT
+    c.Id_Curso,
+    c.Nombre AS NombreCurso,
+    c.Codigo_Curso,
+    a.Id_Aula,
+    a.Codigo_aula,
+    a.Ubicacion,
+    a.Capacidad,
+    ca.Horario_clase,
+    ra.Id_Recurso_Academico,
+    ra.Tipo AS TipoRecurso,
+    ra.Estado AS EstadoRecurso
+FROM
+    Curso c
+     JOIN Curso_Aula ca ON c.Id_Curso = ca.Id_Curso
+     JOIN Aula a ON ca.Id_Aula = a.Id_Aula
+     JOIN Curso_Recurso_Academico cra ON c.Id_Curso = cra.Id_Curso
+     JOIN Recurso_Academico ra ON cra.Id_Recurso_Academico = ra.Id_Recurso_Academico;
+GO
+
+SELECT * FROM dbo.vwResumenCurso

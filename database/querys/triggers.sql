@@ -371,3 +371,319 @@ BEGIN
     END CATCH
 END;
 GO
+
+
+
+
+
+
+
+----------------------------------------
+-----------------------------DOCENTE----
+----------------------------------------
+
+USE Universidad_InnovacionConocimiento;
+GO
+
+-------INSERTAR DOCENTE
+
+CREATE TRIGGER TR_Docente_Insert
+ON Docente
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'INSERT'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'INSERT';
+
+    -- Insertar en Historial_Cambio
+    INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Nuevos)
+    SELECT
+        @Usuario,
+        i.Id_Docente,
+        'Docente',
+        @IdAccion,
+        (
+            SELECT i.Id_Docente, i.Nombre, i.Apellido1, i.Apellido2, i.Email, i.Especialidad, i.Telefono
+            FROM inserted i2
+            WHERE i2.Id_Docente = i.Id_Docente
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+        )
+    FROM inserted i;
+END;
+GO
+
+
+--------------------ACTUALIZAR DOCENTE
+
+CREATE TRIGGER TR_Docente_Update
+ON Docente
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'UPDATE'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'UPDATE';
+
+    -- Insertar en Historial_Cambio
+    INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores, Datos_Nuevos)
+    SELECT
+        @Usuario,
+        i.Id_Docente,
+        'Docente',
+        @IdAccion,
+        (
+            SELECT d.Id_Docente, d.Nombre, d.Apellido1, d.Apellido2, d.Email, d.Especialidad, d.Telefono
+            FROM deleted d2
+            WHERE d2.Id_Docente = d.Id_Docente
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+        ),
+        (
+            SELECT i.Id_Docente, i.Nombre, i.Apellido1, i.Apellido2, i.Email, i.Especialidad, i.Telefono
+            FROM inserted i2
+            WHERE i2.Id_Docente = i.Id_Docente
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+        )
+    FROM inserted i
+    INNER JOIN deleted d ON i.Id_Docente = d.Id_Docente;
+END;
+GO
+
+
+------------------ELIMINACIÓN DOCENTE
+
+CREATE TRIGGER TR_Docente_Delete
+ON Docente
+AFTER DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'DELETE'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'DELETE';
+
+    -- Insertar en Historial_Cambio
+    INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores)
+    SELECT
+        @Usuario,
+        d.Id_Docente,
+        'Docente',
+        @IdAccion,
+        (
+            SELECT d.Id_Docente, d.Nombre, d.Apellido1, d.Apellido2, d.Email, d.Especialidad, d.Telefono
+            FROM deleted d2
+            WHERE d2.Id_Docente = d.Id_Docente
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+        )
+    FROM deleted d;
+END;
+GO
+
+
+
+
+--------------------------------------
+-------------------HISTORIAL_CAMBIO---
+---------------------------------------
+
+-------------------INSERTAR
+
+CREATE TRIGGER TR_HistorialCambio_Insert
+ON Historial_Cambio
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'INSERT'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'INSERT';
+
+    -- Insertar en Auditoria
+    INSERT INTO Auditoria_Accion (Accion_Realizada)
+    VALUES ('Se ha insertado un nuevo cambio en la tabla Historial_Cambio por ' + @Usuario);
+END;
+GO
+
+--------------------ACTUALIZAR
+
+CREATE TRIGGER TR_HistorialCambio_Update
+ON Historial_Cambio
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'UPDATE'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'UPDATE';
+
+    -- Insertar en Auditoria
+    INSERT INTO Auditoria_Accion (Accion_Realizada)
+    VALUES ('Se ha actualizado un cambio en la tabla Historial_Cambio por ' + @Usuario);
+END;
+GO
+
+-------------------------ELIMINAR
+
+CREATE TRIGGER TR_HistorialCambio_Delete
+ON Historial_Cambio
+AFTER DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'DELETE'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'DELETE';
+
+    -- Insertar en Auditoria
+    INSERT INTO Auditoria_Accion (Accion_Realizada)
+    VALUES ('Se ha eliminado un registro de la tabla Historial_Cambio por ' + @Usuario);
+END;
+GO
+
+
+
+
+-----------------------------------
+--------------AUDITORIA_ACCION-----
+------------------------------------
+
+------------INSERTAR
+
+CREATE TRIGGER TR_AuditoriaAccion_Insert
+ON Auditoria_Accion
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'INSERT'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'INSERT';
+
+    -- Insertar en Historial_Cambio
+    INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Nuevos)
+    SELECT
+        @Usuario,
+        i.Id_Accion,
+        'Auditoria_Accion',
+        @IdAccion,
+        (
+            SELECT i.Id_Accion, i.Accion_Realizada
+            FROM inserted i2
+            WHERE i2.Id_Accion = i.Id_Accion
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+        )
+    FROM inserted i;
+END;
+GO
+
+------------------------ACTUALIZAR
+
+CREATE TRIGGER TR_AuditoriaAccion_Update
+ON Auditoria_Accion
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'UPDATE'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'UPDATE';
+
+    -- Insertar en Historial_Cambio
+    INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores, Datos_Nuevos)
+    SELECT
+        @Usuario,
+        i.Id_Accion,
+        'Auditoria_Accion',
+        @IdAccion,
+        (
+            SELECT d.Id_Accion, d.Accion_Realizada
+            FROM deleted d2
+            WHERE d2.Id_Accion = d.Id_Accion
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+        ),
+        (
+            SELECT i.Id_Accion, i.Accion_Realizada
+            FROM inserted i2
+            WHERE i2.Id_Accion = i.Id_Accion
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+        )
+    FROM inserted i
+    INNER JOIN deleted d ON i.Id_Accion = d.Id_Accion;
+END;
+GO
+
+--------------------------ELIMINAR
+
+CREATE TRIGGER TR_AuditoriaAccion_Delete
+ON Auditoria_Accion
+AFTER DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Usuario VARCHAR(100) = SUSER_SNAME();
+    DECLARE @IdAccion INT;
+
+    -- Obtener el Id_Accion para 'DELETE'
+    SELECT @IdAccion = Id_Accion
+    FROM Auditoria_Accion
+    WHERE Accion_Realizada = 'DELETE';
+
+    -- Insertar en Historial_Cambio
+    INSERT INTO Historial_Cambio (Usuario, Id_Registro, Tabla, Id_Accion, Datos_Anteriores)
+    SELECT
+        @Usuario,
+        d.Id_Accion,
+        'Auditoria_Accion',
+        @IdAccion,
+        (
+            SELECT d.Id_Accion, d.Accion_Realizada
+            FROM deleted d2
+            WHERE d2.Id_Accion = d.Id_Accion
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
+        )
+    FROM deleted d;
+END;
+GO

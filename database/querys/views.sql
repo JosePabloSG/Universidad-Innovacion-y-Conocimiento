@@ -91,6 +91,20 @@ FROM
     INNER JOIN Auditoria_Accion aa ON hc.Id_Accion = aa.Id_Accion;
 GO
 
+--Vista para la tabla Docentes
+
+CREATE VIEW dbo.vwDocente AS
+SELECT
+    d.Id_Docente,
+    CONCAT(d.Nombre, ' ', d.Apellido1, ' ', d.Apellido2) AS NombreCompletoDocente,
+    d.Email,
+    d.Especialidad,
+    d.Telefono
+FROM
+    Docente d;
+GO
+
+
 SELECT * FROM vwCurso
 SELECT * FROM vwHorario
 SELECT * FROM vwAuditoriaAccion

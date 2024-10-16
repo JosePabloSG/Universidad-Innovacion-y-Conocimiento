@@ -137,7 +137,32 @@ FROM
     INNER JOIN Facultad f ON pa.Id_Facultad = f.Id_Facultad;
 GO
 
+
+--Views para Estudiantes, Inscripciones y Historial Academico
+
+--Esta vista muestra los estudiantes que están inscritos en al menos un curso.
+USE Universidad_InnovacionConocimiento
+GO
+CREATE VIEW vw_EstudiantesActivos
+AS
+SELECT e.*
+FROM Estudiante e
+INNER JOIN Inscripcion i ON e.Id_Estudiante = i.Id_Estudiante
+WHERE i.Estado = 'Activo';
+GO
+
+--Esta vista muestra todas las inscripciones activas.
+CREATE VIEW vwInscripcionesActivas
+AS
+SELECT i.*
+FROM Inscripcion i
+WHERE i.Estado = 'Activo';
+GO
+
+
 -- Consultas para probar las vistas
 SELECT * FROM vwFacultad;
 SELECT * FROM vwNivelAcademico;
 SELECT * FROM vwProgramaAcademico;
+SELECT * FROM vw_EstudiantesActivos;
+SELECT * FROM vwInscripcionesActivas;

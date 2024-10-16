@@ -1220,9 +1220,144 @@ BEGIN
 END
 GO
 
---Procedimientos para Estudiantes e Inscripciones
 
+--Procedimientos para Estudiantes, Inscripciones Y Historial Academico
+ 
+ 
+-- Procedimiento almacenado para insertar un nuevo estudiante.
 USE Universidad_InnovacionConocimiento;
+GO
+CREATE PROCEDURE uspInsertEstudiante
+    @Nombre VARCHAR(100),
+    @Apellido1 VARCHAR(100),
+    @Apellido2 VARCHAR(100),
+    @Email VARCHAR(150),
+    @Telefono VARCHAR(15),
+    @Direccion VARCHAR(150)
+AS
+BEGIN
+    DECLARE @Existe INT;
+    
+    -- Etiqueta de inicio
+    BEGIN TRY
+        BEGIN TRANSACTION InsertEstudiante;
+
+        -- Verificar si el estudiante ya existe
+        SELECT @Existe = COUNT(1) 
+        FROM Estudiante 
+        WHERE Email = @Email;
+
+        IF @Existe > 0
+        BEGIN
+            RAISERROR('El estudiante con este email ya existe.', 16, 1);
+            ROLLBACK TRANSACTION InsertEstudiante;
+            RETURN;
+        END
+
+        -- Insertar el nuevo estudiante
+        INSERT INTO Estudiante (Nombre, Apellido1, Apellido2, Email, Telefono, Direccion)
+        VALUES (@Nombre, @Apellido1, @Apellido2, @Email, @Telefono, @Direccion);
+
+        -- Confirmar la transacción
+        COMMIT TRANSACTION InsertEstudiante;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION InsertEstudiante;
+
+        -- Manejo de errores
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR (@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+
+-- Procedimiento almacenado para actualizar la información de un estudiante existente.
+
+
+CREATE PROCEDURE uspUpdateEstudiante
+    @IdEstudiante INT,
+    @Nombre VARCHAR(100),
+    @Apellido1 VARCHAR(100),
+    @Apellido2 VARCHAR(100),
+    @Email VARCHAR(150),
+    @Telefono VARCHAR(15),
+    @Direccion VARCHAR(150)
+AS
+BEGIN
+    DECLARE @Existe INT;
+
+    BEGIN TRY
+        BEGIN TRANSACTION UpdateEstudiante;
+
+        -- Verificar si el estudiante existe
+        SELECT @Existe = COUNT(1) 
+        FROM Estudiante 
+        WHERE Id_Estudiante = @IdEstudiante;
+
+        IF @Existe = 0
+        BEGIN
+            RAISERROR('El estudiante no existe.', 16, 1);
+            ROLLBACK TRANSACTION UpdateEstudiante;
+            RETURN;
+        END
+
+        -- Actualizar la información del estudiante
+        UPDATE Estudiante
+        SET Nombre = @Nombre, Apellido1 = @Apellido1, Apellido2 = @Apellido2,
+            Email = @Email, Telefono = @Telefono, Direccion = @Direccion
+        WHERE Id_Estudiante = @IdEstudiante;
+
+        -- Confirmar la transacción
+        COMMIT TRANSACTION UpdateEstudiante;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION UpdateEstudiante;
+
+        -- Manejo de errores
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR (@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+
+-- Procedimiento almacenado para eliminar un estudiante si no tiene inscripciones asociadas.
+
+CREATE PROCEDURE uspDeleteEstudiante
+    @IdEstudiante INT
+AS
+BEGIN
+    DECLARE @TieneInscripciones INT;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION DeleteEstudiante;
+
+        -- Verificar si el estudiante tiene inscripciones asociadas
+        SELECT @TieneInscripciones = COUNT(1)
+        FROM Inscripcion
+        WHERE Id_Estudiante = @IdEstudiante;
+
+        IF @TieneInscripciones > 0
+        BEGIN
+            RAISERROR('No se puede eliminar el estudiante porque tiene inscripciones asociadas.', 16, 1);
+            ROLLBACK TRANSACTION DeleteEstudiante;
+            RETURN;
+        END
+
+        -- Eliminar el estudiante
+        DELETE FROM Estudiante
+        WHERE Id_Estudiante = @IdEstudiante;
+
+        -- Confirmar la transacción
+        COMMIT TRANSACTION DeleteEstudiante;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION DeleteEstudiante;
+
+        -- Manejo de errores
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR (@ErrorMessage, 16, 1);
+    END CATCH
+END;
 GO
 
 -- Procedimiento almacenado para insertar una nueva inscripción en la tabla Inscripciones.
@@ -1230,7 +1365,7 @@ GO
 CREATE PROCEDURE uspInsertInscripcion
     @IdEstudiante INT,
     @IdCurso INT,
-    @Estado VARCHAR(20),
+    @Estado VARCHAR(20)
 AS
 BEGIN
     DECLARE @FechaActual DATE;
@@ -1264,7 +1399,7 @@ BEGIN
         RAISERROR (@ErrorMessage, 16, 1);
     END CATCH
 END;
-
+GO
 
 -- Procedimiento almacenado para actualizar el estado de una inscripción existente.
 
@@ -1273,17 +1408,22 @@ CREATE PROCEDURE uspUpdateInscripcion
     @NuevoEstado VARCHAR(20)
 AS
 BEGIN
-    -- Verificar si la inscripción existe
-    IF NOT EXISTS (SELECT 1 
-                   FROM Inscripcion
-                   WHERE Id_Inscripcion = @IdInscripcion)
-    BEGIN
-        RAISERROR('La inscripción no existe.', 16, 1);
-        RETURN;
-    END
+    DECLARE @ExisteInscripcion INT;
 
     BEGIN TRY
-        BEGIN TRANSACTION;
+        BEGIN TRANSACTION UpdateInscripcion;
+
+        -- Verificar si la inscripción existe
+        SELECT @ExisteInscripcion = COUNT(1)
+        FROM Inscripcion
+        WHERE Id_Inscripcion = @IdInscripcion;
+
+        IF @ExisteInscripcion = 0
+        BEGIN
+            RAISERROR('La inscripción no existe.', 16, 1);
+            ROLLBACK TRANSACTION UpdateInscripcion;
+            RETURN;
+        END
 
         -- Actualizar el estado de la inscripción
         UPDATE Inscripcion
@@ -1291,58 +1431,17 @@ BEGIN
         WHERE Id_Inscripcion = @IdInscripcion;
 
         -- Confirmar la transacción
-        COMMIT TRANSACTION;
+        COMMIT TRANSACTION UpdateInscripcion;
     END TRY
     BEGIN CATCH
-        -- Si hay un error, revertir la transacción
-        ROLLBACK TRANSACTION;
+        ROLLBACK TRANSACTION UpdateInscripcion;
 
-        -- Mostrar mensaje de error
+        -- Manejo de errores
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
         RAISERROR (@ErrorMessage, 16, 1);
     END CATCH
 END;
-
-
---Procedimiento almacenado para registrar una calificación con validación.
-
-CREATE PROCEDURE uspInsertCalificacion
-    @IdCurso INT,
-    @IdEstudiante INT,
-    @Nota DECIMAL(5,2)
-AS
-BEGIN
-    DECLARE @FechaCalificacion DATE;
-    SET @FechaCalificacion = GETDATE();
-
-    -- Verificar si ya existe una calificación para el estudiante en el curso
-    IF EXISTS (SELECT 1 
-               FROM Historial_Academico 
-               WHERE Id_Curso = @IdCurso AND Id_Estudiante = @IdEstudiante)
-    BEGIN
-        RAISERROR('Ya existe una calificación para este estudiante en el curso.', 16, 1);
-        RETURN;
-    END
-
-    BEGIN TRY
-        BEGIN TRANSACTION;
-
-        -- Insertar la calificación en el historial académico
-        INSERT INTO Historial_Academico (Nota, Fecha_Calificacion, Id_Curso, Id_Estudiante)
-        VALUES (@Nota, @FechaCalificacion, @IdCurso, @IdEstudiante);
-
-        -- Confirmar la transacción
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        -- Si hay un error, revertir la transacción
-        ROLLBACK TRANSACTION;
-
-        -- Mostrar mensaje de error
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR (@ErrorMessage, 16, 1);
-    END CATCH
-END;
+GO
 
 --Procedimiento almacenado para eliminar una inscripción.
 
@@ -1350,68 +1449,168 @@ CREATE PROCEDURE uspDeleteInscripcion
     @IdInscripcion INT
 AS
 BEGIN
-    -- Verificar si la inscripción existe
-    IF NOT EXISTS (SELECT 1 
-                   FROM Inscripcion 
-                   WHERE Id_Inscripcion = @IdInscripcion)
-    BEGIN
-        RAISERROR('La inscripción no existe.', 16, 1);
-        RETURN;
-    END
+    DECLARE @ExisteInscripcion INT;
 
     BEGIN TRY
-        BEGIN TRANSACTION;
+        BEGIN TRANSACTION DeleteInscripcion;
+
+        -- Verificar si la inscripción existe
+        SELECT @ExisteInscripcion = COUNT(1)
+        FROM Inscripcion
+        WHERE Id_Inscripcion = @IdInscripcion;
+
+        IF @ExisteInscripcion = 0
+        BEGIN
+            RAISERROR('La inscripción no existe.', 16, 1);
+            ROLLBACK TRANSACTION DeleteInscripcion;
+            RETURN;
+        END
 
         -- Eliminar la inscripción
         DELETE FROM Inscripcion
         WHERE Id_Inscripcion = @IdInscripcion;
 
         -- Confirmar la transacción
-        COMMIT TRANSACTION;
+        COMMIT TRANSACTION DeleteInscripcion;
     END TRY
     BEGIN CATCH
-        -- Si hay un error, revertir la transacción
-        ROLLBACK TRANSACTION;
+        ROLLBACK TRANSACTION DeleteInscripcion;
 
-        -- Mostrar mensaje de error
+        -- Manejo de errores
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
         RAISERROR (@ErrorMessage, 16, 1);
     END CATCH
 END;
+GO
 
+--Procedimiento almacenado insertará un nuevo registro en la tabla Historial_Academico. 
 
---Procedimiento almacenado para consultar el historial académico de un estudiante.
-
-CREATE PROCEDURE SP_ConsultarHistorialAcademico
-    @IdEstudiante INT
+CREATE PROCEDURE uspInsertHistorialAcademico
+    @IdCurso INT,
+    @IdEstudiante INT,
+    @Nota DECIMAL(5,2)
 AS
 BEGIN
-    -- Verificar si el estudiante tiene un historial académico
-    IF NOT EXISTS (SELECT 1 
-                   FROM Historial_Academico 
-                   WHERE Id_Estudiante = @IdEstudiante)
-    BEGIN
-        RAISERROR('El estudiante no tiene registros en el historial académico.', 16, 1);
-        RETURN;
-    END
+    -- Variables locales
+    DECLARE @FechaCalificacion DATE = GETDATE();
+    DECLARE @ExisteHistorial INT;
 
+    -- Etiqueta de inicio de la transacción
     BEGIN TRY
-        BEGIN TRANSACTION;
+        BEGIN TRANSACTION InsertHistorial;
 
-        -- Consultar el historial académico del estudiante
-        SELECT *
+        -- Verificar si ya existe una calificación para el estudiante en el curso
+        SELECT @ExisteHistorial = COUNT(1)
         FROM Historial_Academico
-        WHERE Id_Estudiante = @IdEstudiante;
+        WHERE Id_Curso = @IdCurso AND Id_Estudiante = @IdEstudiante;
+
+        -- Si ya existe, lanzamos un error
+        IF @ExisteHistorial > 0
+        BEGIN
+            RAISERROR('Ya existe una calificación para este estudiante en este curso.', 16, 1);
+            ROLLBACK TRANSACTION InsertHistorial;
+            RETURN;
+        END
+
+        -- Si no existe, insertamos el nuevo registro en el historial académico
+        INSERT INTO Historial_Academico (Nota, Fecha_Calificacion, Id_Curso, Id_Estudiante)
+        VALUES (@Nota, @FechaCalificacion, @IdCurso, @IdEstudiante);
 
         -- Confirmar la transacción
-        COMMIT TRANSACTION;
+        COMMIT TRANSACTION InsertHistorial;
     END TRY
     BEGIN CATCH
-        -- Si hay un error, revertir la transacción
-        ROLLBACK TRANSACTION;
+        -- Si ocurre un error, revertimos la transacción
+        ROLLBACK TRANSACTION InsertHistorial;
 
-        -- Mostrar mensaje de error
+        -- Capturar y mostrar el mensaje de error
         DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
         RAISERROR (@ErrorMessage, 16, 1);
     END CATCH
 END;
+GO
+
+--Procedimiento almacenado para actualizar un registro en el historial académico.
+
+CREATE PROCEDURE uspUpdateHistorialAcademico
+    @IdHistorial INT,
+    @Nota DECIMAL(5,2),
+    @FechaCalificacion DATE
+AS
+BEGIN
+    DECLARE @ExisteHistorial INT;
+
+    BEGIN TRY
+        BEGIN TRANSACTION UpdateHistorial;
+
+        -- Verificar si el registro del historial académico existe
+        SELECT @ExisteHistorial = COUNT(1)
+        FROM Historial_Academico
+        WHERE Id_Historial_Academico = @IdHistorial;
+
+        IF @ExisteHistorial = 0
+        BEGIN
+            RAISERROR('El historial académico no existe.', 16, 1);
+            ROLLBACK TRANSACTION UpdateHistorial;
+            RETURN;
+        END
+
+        -- Actualizar el historial académico
+        UPDATE Historial_Academico
+        SET Nota = @Nota, Fecha_Calificacion = @FechaCalificacion
+        WHERE Id_Historial_Academico = @IdHistorial;
+
+        -- Confirmar la transacción
+        COMMIT TRANSACTION UpdateHistorial;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION UpdateHistorial;
+
+        -- Manejo de errores
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR (@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+
+--Procedimiento almacenado para eliminar un registro en el historial académico.
+
+CREATE PROCEDURE uspDeleteHistorialAcademico
+    @IdHistorial INT
+AS
+BEGIN
+    DECLARE @ExisteHistorial INT;
+
+    BEGIN TRY
+        BEGIN TRANSACTION DeleteHistorial;
+
+        -- Verificar si el registro del historial académico existe
+        SELECT @ExisteHistorial = COUNT(1)
+        FROM Historial_Academico
+        WHERE Id_Historial_Academico = @IdHistorial;
+
+        IF @ExisteHistorial = 0
+        BEGIN
+            RAISERROR('El historial académico no existe.', 16, 1);
+            ROLLBACK TRANSACTION DeleteHistorial;
+            RETURN;
+        END
+
+        -- Eliminar el historial académico
+        DELETE FROM Historial_Academico
+        WHERE Id_Historial_Academico = @IdHistorial;
+
+        -- Confirmar la transacción
+        COMMIT TRANSACTION DeleteHistorial;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION DeleteHistorial;
+
+        -- Manejo de errores
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR (@ErrorMessage, 16, 1);
+    END CATCH
+END;
+
+
+

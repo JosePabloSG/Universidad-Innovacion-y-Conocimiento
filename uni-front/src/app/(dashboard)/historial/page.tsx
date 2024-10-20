@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import React, { useState, useEffect } from "react";
 import {
@@ -58,7 +59,21 @@ const fetchData = async () => {
 };
 
 export default function AuditLogViewer() {
-  const [data, setData] = useState<unknown>(null);
+  interface AuditData {
+    auditoria_accion: { id_accion: number; accion_realizada: string }[];
+    historial_cambio: {
+      id_historial_cambio: number;
+      usuario: string;
+      fecha: string;
+      id_registro: number;
+      tabla: string;
+      id_accion: number;
+      datos_anteriores: string | null;
+      datos_nuevos: string | null;
+    }[];
+  }
+
+  const [data, setData] = useState<AuditData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -102,7 +117,7 @@ export default function AuditLogViewer() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.historial_cambio.map((item: any) => (
+                  {data && data.historial_cambio.map((item: any) => (
                     <TableRow key={item.id_historial_cambio}>
                       <TableCell>{item.id_historial_cambio}</TableCell>
                       <TableCell>{item.usuario}</TableCell>
@@ -144,7 +159,7 @@ export default function AuditLogViewer() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.auditoria_accion.map((item: any) => (
+                  {data && data.auditoria_accion.map((item: any) => (
                     <TableRow key={item.id_accion}>
                       <TableCell>{item.id_accion}</TableCell>
                       <TableCell>{item.accion_realizada}</TableCell>

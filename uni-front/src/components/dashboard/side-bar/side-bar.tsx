@@ -3,21 +3,18 @@ import {
   Users,
   BookOpen,
   School,
-  Clock,
-  FileText,
   Home,
 } from "lucide-react";
 import Link from "next/link";
 
+
 const menuItems = [
   { name: "Inicio", icon: Home, href: "/" },
-  { name: "Horarios", icon: Calendar, href: "/horarios" },
-  { name: "Estudiantes", icon: Users, href: "/estudiantes" },
-  { name: "Docentes", icon: Users, href: "/docentes" },
-  { name: "Recursos Académicos", icon: BookOpen, href: "/recursos-academicos" },
-  { name: "Aulas", icon: School, href: "/aulas" },
-  { name: "Cursos", icon: Clock, href: "/cursos" },
-  { name: "Historial", icon: FileText, href: "/historial" },
+  { name: "Gestión Académica", icon: Calendar, href: "/gestion-academica" },
+  { name: "Recursos Académicos", icon: Users, href: "/recursos-academicos" },
+  { name: "Gestión de Cursos", icon: Users, href: "/gestion-cursos" },
+  { name: " Gestión de Estudiantes y Docentes", icon: School, href: "/gestion-personas" },
+  { name: "Historial Académico y Auditoría", icon: BookOpen, href: "/historial-academico" }
 ];
 export default function SideBar() {
   return (

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import SideBar from "@/components/dashboard/side-bar/side-bar";
+import Navbar from "@/components/Navbar/Navbar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -12,9 +13,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="min-h-screen flex">
-      <SideBar />
-      <div className="flex-1 p-4">{children}</div>
-    </main>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <div className="flex flex-1">
+        <SideBar />
+        <div className="flex-1 p-4 bg-gray-100">
+          {children}
+        </div>
+      </div>
+    </div>
   );
 }

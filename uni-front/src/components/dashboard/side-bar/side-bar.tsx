@@ -14,7 +14,7 @@ const menuItems = [
   { name: "Recursos Académicos", icon: Users, href: "/recursos-academicos" },
   { name: "Gestión de Cursos", icon: Users, href: "/gestion-cursos" },
   { name: " Gestión de Estudiantes y Docentes", icon: School, href: "/gestion-personas" },
-  { name: "Historial Académico y Auditoría", icon: BookOpen, href: "/historial-academico" }
+  { name: "Historial de cambios y Auditoría", icon: BookOpen, href: "/historial-academico" }
 ];
 export default function SideBar() {
   return (
